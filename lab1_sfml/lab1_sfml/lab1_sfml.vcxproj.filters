@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="ObjParser.cpp">
+      <Filter>Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Parsers">
+      <UniqueIdentifier>{c72ce204-01de-4d90-ad2c-6de753c6474a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{b7f04e61-afff-4e26-99be-cb6e4fd8de1e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ObjParser.hpp">
+      <Filter>Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="Constants.hpp">
+      <Filter>Config</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.hpp" />
+  </ItemGroup>
+</Project>
