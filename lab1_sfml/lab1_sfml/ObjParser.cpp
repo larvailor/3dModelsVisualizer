@@ -7,7 +7,6 @@
 
 std::vector<Vertex> ObjParser::parseObj(const std::string& pathToObjFile)
 {
-
 	std::vector<glm::vec3> vertexPosition;   // координаты вершины в 3х мерном пространстве
 	std::vector<glm::vec3> vertexTexCoord;   // текстурные координаты вершины
 	std::vector<glm::vec3> vertexNormal;	 // вектор нормали вершины

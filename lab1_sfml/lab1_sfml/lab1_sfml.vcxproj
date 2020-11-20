@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.hpp" />
     <ClInclude Include="Constants.hpp" />
+    <ClInclude Include="Globals.hpp" />
     <ClInclude Include="ObjParser.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

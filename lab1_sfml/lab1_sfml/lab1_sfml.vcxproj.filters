@@ -23,5 +23,6 @@
       <Filter>Config</Filter>
     </ClInclude>
     <ClInclude Include="Camera.hpp" />
+    <ClInclude Include="Globals.hpp" />
   </ItemGroup>
 </Project>

@@ -4,26 +4,65 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Globals.hpp"
 #include "Constants.hpp"
 #include "ObjParser.hpp"
 #include "Camera.hpp"
 
-#include <iostream>
+/////////////////////////////////////////////////
+// 
+//		GLOBAL VARIABLES
+//
+/////////////////////////////////////////////////
 
+// Extern declarations
+float gFrameTime;
+
+// Rendering
+sf::RenderWindow renderWindow(sf::VideoMode(static_cast<int>(WINDOW_WIDTH), static_cast<int>(WINDOW_HEIGHT)), "Lab1");
+
+// Frame time
+float frameTime;
+sf::Clock frameTimeClock;
+
+// FPS
+int fpsCounter;
+int fps;
+sf::Clock fpsClock;
+sf::Font debugFont;
+sf::Text debugFrameTime;
+sf::Text debugFps;
+
+
+
+/////////////////////////////////////////////////
+// 
+//		FUNCTIONS DECLARATIONS
 //
-// Functions declarations
-//
+/////////////////////////////////////////////////
+
+void Initialization();
+void UpdateFrameTime();
+void UpdateFps();
+void RenderDebugInfo();
 
 void TransformCoordinates(std::vector<Vertex>& obj, sf::VertexArray& va, Camera& camera);
 
-// MAIN
+
+
+/////////////////////////////////////////////////
+// 
+//		FUNCTIONS IMPLEMENTATIONS
+//
+/////////////////////////////////////////////////
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Lab1");
 
     //-------------------------------------------
     // Set up
+
+	Initialization();
 
     std::vector<Vertex> obj = ObjParser::parseObj(PATH_TO_MODEL);
 
@@ -72,31 +111,35 @@ int main()
     //-------------------------------------------
     // Program loop
 	
-
-
-    while (window.isOpen())
+    while (renderWindow.isOpen())
     {
         sf::Event event;
-        while (window.pollEvent(event))
+        while (renderWindow.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
-                window.close();
+                renderWindow.close();
 
 			camera.HandleInput(event);
         }
 
-
-
-
-        //-------------------------------------------
-        // Render stuff here
+		//-------------------------------------------
+		//		Update
 		
-		window.clear();
+		UpdateFrameTime();
+		UpdateFps();
 
 		TransformCoordinates(obj, va, camera);
-        window.draw(va);
 
-        window.display();
+        //-------------------------------------------
+        //		Render
+		
+		renderWindow.clear();
+
+        renderWindow.draw(va);
+
+		RenderDebugInfo();
+
+        renderWindow.display();
     }
 
     return 0;
@@ -137,47 +180,62 @@ void TransformCoordinates(std::vector<Vertex>& obj, sf::VertexArray& va, Camera&
 		//va[i].color = sf::Color(50, 50, 50, 255);
 	}
 
+}
+
+void Initialization()
+{
+	debugFont.loadFromFile(PATH_TO_DEBUG_FONT);
+
+	// Frame time
+	debugFrameTime = sf::Text();
+	debugFrameTime.setFont(debugFont);
+	debugFrameTime.setCharacterSize(16);
+	debugFrameTime.setFillColor(sf::Color::White);
+	debugFrameTime.setPosition(5, 5);
+
+	// FPS
+	debugFps = sf::Text();
+	debugFps.setFont(debugFont);
+	debugFps.setCharacterSize(16);
+	debugFps.setFillColor(sf::Color::White);
+	debugFps.setPosition(5, 20);
+}
 
 
 
+//-----------------------------------------------
+//		Update
+//
 
-	//glm::vec3 scaleVector(3.0f);
-	//glm::vec3 rotationVector(0.0f);
-	//glm::vec3 translationVec(0.0f);
+void UpdateFrameTime()
+{
+	debugFrameTime.setString("FT: " + std::to_string(frameTime));
+	frameTime = frameTimeClock.restart().asSeconds();
+}
 
-	//glm::mat4 modelMatrix;
-	//modelMatrix = glm::scale(modelMatrix, scaleVector);
-	//modelMatrix = glm::rotate(modelMatrix, glm::radians(0.0f), rotationVector);
-	//modelMatrix = glm::translate(modelMatrix, translationVec);
-
-
-	//glm::mat4 viewMatrix = glm::lookAt(
-	//	glm::vec3(camera.mPosition.x, camera.mPosition.y, camera.mPosition.z), // the position the camera, in world space
-	//	glm::vec3(0, 0, 0), // where you want to look at, in world space
-	//	glm::vec3(0, 1, 0)
-	//);
-
-
-	//glm::mat4 projectionMatrix = glm::perspective(glm::radians(camera.mFieldOfView), 4.0f / 3.0f, camera.mNearPlane, camera.mFarPlane);
-
-
-	//glm::mat4 modelViewProjectionMat = projectionMatrix * viewMatrix * modelMatrix;
+void UpdateFps()
+{
+	fpsCounter++;
+	if (fpsClock.getElapsedTime().asSeconds() > 1)
+	{
+		fps = fpsCounter;
+		fpsCounter = 0;
+		debugFps.setString("FPS: " + std::to_string(fps));
+		fpsClock.restart();
+	}
+}
 
 
-	//glm::mat4 viewPortMatrix = glm::mat4(
-	//	WINDOW_WIDTH / 2.0f, 0.0f, 0.0f, 0.0f,
-	//	0.0f, -(WINDOW_HEIGHT / 2.0f), 0.0f, 0.0f,
-	//	0.0f, 0.0f, 1.0f, 0.0f,
-	//	0.0f + WINDOW_WIDTH / 2.0f, 0.0f + WINDOW_HEIGHT / 2.0f, 0.0f, 1.0f
-	//);
 
-	//glm::vec4 newVertexPos;
-	//for (unsigned i = 0; i < obj.size(); i++)
-	//{
-	//	newVertexPos = modelViewProjectionMat * glm::vec4(obj[i].position, 1.0f);
-	//	newVertexPos = viewPortMatrix * newVertexPos;
+//-----------------------------------------------
+//		Render
+//
 
-	//	va[i].position = sf::Vector2f(newVertexPos.x, newVertexPos.y);
-	//	va[i].color = sf::Color(50, 50, 50, 255);
-	//}
+void RenderDebugInfo()
+{
+	// Frame time
+	renderWindow.draw(debugFrameTime);
+
+	// Fps
+	renderWindow.draw(debugFps);
 }

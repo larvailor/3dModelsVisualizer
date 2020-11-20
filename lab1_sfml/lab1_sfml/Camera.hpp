@@ -14,11 +14,12 @@ public:
 
 	glm::vec3 mPosition;
 	float mScale;
-	float mPitch;
-	float mRoll;
 	float mNearPlane;
 	float mFarPlane;
 	float mFieldOfView;
+
+private:
+	float mMoveSpeed;
 };
 
 
