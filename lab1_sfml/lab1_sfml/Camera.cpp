@@ -1,30 +1,41 @@
-#include "Globals.hpp"
 #include "Camera.hpp"
+
+#include "Globals.hpp"
+#include "Constants.hpp"
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 namespace
 {
-	const float START_POS_X = 0.0f;
-	const float START_POS_Y = 0.0f;
-	const float START_POS_Z = 0.0f;
+	const glm::vec3 cStartPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	const glm::vec3 cStartViewDirection = glm::vec3(0.0f, 0.0f, -1.0f);
+	const glm::vec3 cStartUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	const float START_SCALE = 0.0f;
-	const float START_NEAR_PLANE = 0.01f;
-	const float START_FAR_PLANE = 100.0f;
-	const float START_FIELD_OF_VIEW = 45.0f;
+	const float cStartNearPlane = 0.01f;
+	const float cStartFarPlane = 100.0f;
+	const float cStartFieldOfView = 45.0f;
 	
-	const float START_MOVE_SPEED = 100.0f;
+	const float cStartMoveSpeed = 3.0f;
 
 }
 
 Camera::Camera()
-	: mPosition(START_POS_X, START_POS_Y, START_POS_Z)
-	, mScale(START_SCALE)
-	, mNearPlane(START_NEAR_PLANE)
-	, mFarPlane(START_FAR_PLANE)
-	, mFieldOfView(START_FIELD_OF_VIEW)
-	, mMoveSpeed(START_MOVE_SPEED)
+	: mPosition(cStartPosition)
+	, mViewDirection(cStartViewDirection)
+	, mUp(cStartUp)
+	, mViewMatrix(1.0f)
+	, mNearPlane(cStartNearPlane)
+	, mFarPlane(cStartFarPlane)
+	, mFieldOfView(cStartFieldOfView)
+	, mMoveSpeed(cStartMoveSpeed)
 {
 
+}
+
+void Camera::Update(const glm::vec2& mousePositionChangeDelta)
+{
+	mViewDirection = glm::mat3(glm::rotate(-mousePositionChangeDelta.x * gFrameTime, mUp)) * mViewDirection;
 }
 
 void Camera::HandleInput(sf::Event& event)
@@ -51,4 +62,14 @@ void Camera::HandleInput(sf::Event& event)
 		}
 		break;
 	}
+}
+
+glm::mat4 Camera::GetViewMatrix()
+{
+	return glm::lookAt(mPosition, mPosition + mViewDirection, mUp);
+}
+
+glm::mat4 Camera::GetProjectionMatrix()
+{
+	return glm::perspective(glm::radians(mFieldOfView), WINDOW_WIDTH / WINDOW_HEIGHT, mNearPlane, mFarPlane);
 }
