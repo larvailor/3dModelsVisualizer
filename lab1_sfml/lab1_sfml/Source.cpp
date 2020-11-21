@@ -30,12 +30,17 @@ Camera camera;
 // Frame time
 sf::Clock frameTimeClock;
 
+//-------------------------------------------
+//		Debug
+
+sf::Font debugFont;
+
+// Frame time
+sf::Text debugFrameTime;
+
 // FPS
-int fpsCounter;
 int fps;
 sf::Clock fpsClock;
-sf::Font debugFont;
-sf::Text debugFrameTime;
 sf::Text debugFps;
 
 // Mouse
@@ -57,9 +62,9 @@ void Initialization();
 //-------------------------------------------
 //		Update
 
+void UpdateCamera();
 void UpdateFrameTime();
 void UpdateFps();
-void UpdateMousePosition();
 
 //-------------------------------------------
 //		Render
@@ -92,8 +97,10 @@ int main()
 
     sf::VertexArray va(sf::Lines, obj.size());
 
-	Camera camera;
 
+	// Test
+
+	sf::VertexArray vaTest(sf::LineStrip, 3);
 
     //-------------------------------------------
     // Program loop
@@ -111,26 +118,26 @@ int main()
 
 		//-------------------------------------------
 		//		Update
-		
+
+		UpdateCamera();
 		UpdateFrameTime();
 		UpdateFps();
-		UpdateMousePosition();
 
 
 		TransformCoordinates(obj, va);
 
-        //-------------------------------------------
-        //		Render
-		
-		renderWindow->clear();
+		//-------------------------------------------
+		//		Render
 
-        renderWindow->draw(va);
+		renderWindow->clear(sf::Color(50, 50, 50, 255));
+
+		renderWindow->draw(va);
 		RenderDebugInfo();
 
-        renderWindow->display();
-    }
+		renderWindow->display();
+	}
 
-    return 0;
+	return 0;
 }
 
 
@@ -140,7 +147,7 @@ void TransformCoordinates(std::vector<Vertex>& obj, sf::VertexArray& va)
 {
 	glm::mat4 model(1.0f);
 	model = glm::scale(model, glm::vec3(0.40f, 0.40f, 0.40f));
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 	//glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(camera.mPosition.x, camera.mPosition.y, camera.mPosition.z));
 
 	glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
@@ -166,21 +173,23 @@ void TransformCoordinates(std::vector<Vertex>& obj, sf::VertexArray& va)
 
 void Initialization()
 {
+	camera.Initialize();
+
 	debugFont.loadFromFile(PATH_TO_DEBUG_FONT);
 
 	// Frame time
 	debugFrameTime = sf::Text();
 	debugFrameTime.setFont(debugFont);
-	debugFrameTime.setCharacterSize(16);
+	debugFrameTime.setCharacterSize(14);
 	debugFrameTime.setFillColor(sf::Color::White);
-	debugFrameTime.setPosition(5, 5);
+	debugFrameTime.setPosition(10, 20);
 
 	// FPS
 	debugFps = sf::Text();
 	debugFps.setFont(debugFont);
-	debugFps.setCharacterSize(16);
+	debugFps.setCharacterSize(14);
 	debugFps.setFillColor(sf::Color::White);
-	debugFps.setPosition(5, 20);
+	debugFps.setPosition(10, 40);
 }
 
 
@@ -189,30 +198,37 @@ void Initialization()
 //		Update
 //
 
+// TODO: change
+void UpdateCamera()
+{
+	oldMousePosition = mousePosition;
+	mousePosition = glm::vec2(static_cast<float>(sf::Mouse::getPosition(*renderWindow).x), static_cast<float>(sf::Mouse::getPosition(*renderWindow).y));
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		camera.UpdateLookDirection(mousePosition - oldMousePosition);
+	}
+
+	camera.Update();
+}
+
 void UpdateFrameTime()
 {
-	debugFrameTime.setString("FT: " + std::to_string(gFrameTime));
+	debugFrameTime.setString("Frame time: " + std::to_string(gFrameTime));
 	gFrameTime = frameTimeClock.restart().asSeconds();
 }
 
 void UpdateFps()
 {
-	fpsCounter++;
+	fps++;
 	if (fpsClock.getElapsedTime().asSeconds() > 1)
 	{
-		fps = fpsCounter;
-		fpsCounter = 0;
 		debugFps.setString("FPS: " + std::to_string(fps));
+		fps = 0;
 		fpsClock.restart();
 	}
 }
 
-void UpdateMousePosition()
-{
-	oldMousePosition = mousePosition;
-	mousePosition = glm::vec2(static_cast<float>(sf::Mouse::getPosition(*renderWindow).x), static_cast<float>(sf::Mouse::getPosition(*renderWindow).y));
-	camera.Update(mousePosition - oldMousePosition);
-}
 
 
 
@@ -227,4 +243,7 @@ void RenderDebugInfo()
 
 	// Fps
 	renderWindow->draw(debugFps);
+
+	// Camera
+	renderWindow->draw(camera.GetDebugInfo());
 }
